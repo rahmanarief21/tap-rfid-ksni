@@ -10,7 +10,9 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get("/", (req, res) => {
-  res.status(403);
+  res.status(403).json({
+    message : "Forbidden Area"
+  });
 });
 
 
