@@ -2,7 +2,7 @@ const mysql = require("mysql");
 
 const koneksi = mysql.createConnection({
   host : "192.168.11.23",
-  user : 'root',
+  user : 'hrdb',
   password : 'hrnabatirck',
   database : 'dashboard',
   multipleStatements : 'true'
