@@ -10,9 +10,7 @@ app.use(bodyParser.urlencoded({
 }));
 
 app.get("/", (req, res) => {
-  res.json({
-    message : 'API Node JS CRUD'
-  })
+  res.status(403);
 });
 
 
