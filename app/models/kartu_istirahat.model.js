@@ -112,7 +112,7 @@ KartuIstirahat.updateById = (idKartu, kartuIstirahat, result) => {
   });
 };
 
-KartuIstirahat.remove = (idKartu, result) => {
+KartuIstirahat.softRemove = (idKartu, result) => {
   sql.query("UPDATE tbl_gi_kartu_istirahat SET deleted_at = CURRENT_TIMESTAMP() WHERE id = ? AND deleted_at = '0'", idKartu, (err, res) => {
     if (err) {
       console.log("error : ", err);
@@ -132,7 +132,7 @@ KartuIstirahat.remove = (idKartu, result) => {
   });
 };
 
-KartuIstirahat.removeAll = result => {
+KartuIstirahat.softRemoveAll = result => {
   sql.query("UPDATE tbl_gi_kartu_istirahat SET deleted_at = CURRENT_TIMESTAMP() WHERE deleted_at = '0'", (err, res) => {
     if (err) {
       console.log("error : ", err);
@@ -142,6 +142,19 @@ KartuIstirahat.removeAll = result => {
 
     console.log(`Kartu Yang di Hapus Sebanyak ${res.affectedRows} Kartu`);
     result(null, res);
+  });
+};
+
+KartuIstirahat.remove = (idKartu, result) => {
+  sql.query(`DELETE FROM tbl_gi_kartu_istirahat WHERE id = ${idKartu}`, (err, res) => {
+    if (err) {
+      console.log("error : ", err);
+      result(err, null);
+      return;
+    }
+    
+    console.log(`Kartu dengan id ${idKartu} telah dihapus permanen`);
+    result(null, {id : idKartu, message : "delete_success"});
   });
 };
 
