@@ -17,6 +17,7 @@ app.get("/home", (req, res) => {
 
 require("./app/routes/kartu_istirahat.routes.js")(app);
 require("./app/routes/kartu_terakhir.routes")(app);
+require("./app/routes/home.routes")(app);
 
 // setting port to 3000, & listening for requests http request.
 app.listen(PORT, () => {
