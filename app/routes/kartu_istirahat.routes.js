@@ -16,4 +16,7 @@ module.exports = app => {
 
   app.post("/api/kartu_istirahat/set_get_card/", kartuIstirahat.useUnuseCard);
 
+  app.get("/api/kartu_istirahat_count/", kartuIstirahat.countCard);
+
+  app.get("/api/kartu_istirahat_count/:idLokasi", kartuIstirahat.countCard);
 }

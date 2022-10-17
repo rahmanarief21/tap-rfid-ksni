@@ -138,3 +138,18 @@ exports.useUnuseCard = (req, res) => {
   });
 };
 
+exports.countCard = (req, res) => {
+  let idKLokasi = false;
+  if (req.params.idLokasi !== "") {
+    idLokasi = req.params.idLokasi
+  }
+
+  KartuIstirahat.countCard(idLokasi, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message : "Data Tidak Bisa dihitung"
+      });
+    }
+    else res.send(data);
+  });
+};

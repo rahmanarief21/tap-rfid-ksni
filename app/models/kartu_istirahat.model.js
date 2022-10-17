@@ -173,4 +173,27 @@ KartuIstirahat.useUnuseCard = (restCard, result) => {
       result(null, {...restCard});
     });
 };
+
+KartuIstirahat.countCard = (locationId = false, result) => {
+
+  let sqlLocationId = "";
+
+  if (locationId != false && locationId !== "")
+  {
+    sqlLocationId = ` AND kartu.lokasi_kartu = ${locationId}`;
+  }
+
+  sql.query(
+    `SELECT kartu.lokasi_kartu, skt.nama_sektor, COUNT(kartu.id) AS jml_kartu FROM tbl_gi_kartu_istirahat AS kartu INNER JOIN tbl_sektor AS skt ON kartu.lokasi_kartu = skt.id WHERE kartu.deleted_at = '0' ${sqlLocationId} GROUP BY kartu.lokasi_kartu`,
+    (err, res) => {
+      if (err) {
+        console.log("error :", err);
+        result(err, null);
+        return;
+      }
+
+      console.log(res);
+      result(null, res);
+    });
+};
 module.exports = KartuIstirahat;
