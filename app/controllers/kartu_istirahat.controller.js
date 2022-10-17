@@ -153,3 +153,28 @@ exports.countCard = (req, res) => {
     else res.send(data);
   });
 };
+
+exports.getLatestCard = (req, res) => {
+  let locationId = "";
+
+  if (req.params.idLokasi == "")
+  {
+    res.status(400).send({
+      message : "Data Tidak Boleh Kosong"
+    });
+  }
+
+  locationId = req.params.idLokasi;
+
+  KartuIstirahat.getLastCardByLocation(locationId, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message : "Data Error"
+      });
+    }else if (data.length == 0) {
+      data.status(500).send({
+        message : "Tidak Ada Kartu di Lokasi Tersebut"
+      });
+    } else res.send(data);
+  });
+};

@@ -196,4 +196,17 @@ KartuIstirahat.countCard = (locationId = false, result) => {
       result(null, res);
     });
 };
+
+KartuIstirahat.getLastCardByLocation = (locationId, result) => {
+  sql.query("SELECT id, no_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu=? AND deleted_at = '0' ORDER BY no_kartu DESC LIMIT 1", locationId, (err, res) => {
+    if (err) {
+      console.log("error :", err);
+      result(err, null);
+      return;
+    }
+
+    console.log(res);
+    result(null, res);
+  });
+};
 module.exports = KartuIstirahat;
