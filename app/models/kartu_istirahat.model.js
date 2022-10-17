@@ -158,4 +158,19 @@ KartuIstirahat.remove = (idKartu, result) => {
   });
 };
 
+KartuIstirahat.useUnuseCard = (restCard, result) => {
+    let idKartu = restCard.idKartu;
+    let changeTo = restCard.statusKartu;
+
+    sql.query("UPDATE tbl_gi_kartu_istirahat SET status_kartu=? WHERE id=?", [changeTo, idKartu], (err, res) => {
+      if (err) {
+        console.log("error :", err);
+        result(err, null);
+        return;
+      }
+
+      console.log(`Kartu Istirahat dengan Id Kartu ${idKartu} diubah menjadi ${changeTo}`);
+      result(null, {...restCard});
+    });
+};
 module.exports = KartuIstirahat;

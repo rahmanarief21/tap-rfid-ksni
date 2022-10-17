@@ -49,11 +49,13 @@ exports.findOne = (req, res) => {
     if (err) {
       if (err.kind === "not_found") {
         res.status(404).send({
-          message : `Data Kartu Istirahat dengan id ${req.params.idKartu} tidak ditemukan.` 
+          message : `Data Kartu Istirahat dengan id ${req.params.idKartu} tidak ditemukan.`,
+          isEmpty : true
         });
       } else {
         res.status(500).send({
-          message : `Error saat mencoba mencari data ${req.params.idKartu}.`
+          message : `Error saat mencoba mencari data ${req.params.idKartu}.`,
+          isEmpty : true
         });
       }
     } else res.send(data);
@@ -108,6 +110,31 @@ exports.deleteAll = (req, res) => {
         message : "Data Tidak Bisa didelete"
       });
     else res.send(data);
+  });
+};
+
+//Gunakan/Tidak Gunakan Kartu Istirahat Sesuai ID yang diberikan , beserta dengan status yang diinginkan
+exports.useUnuseCard = (req, res) => {
+  if (!req.body){
+    res.status(400).send({
+      message : "Data Tidak Boleh Kosong"
+    });
+  }
+
+  let id_kartu = req.body.idKartu; //id kartu istirahat
+  let status_kartu_to = req.body.statusKartu; //perubahan status kartu => use : 0, unuse : 1
+
+  let kartu_istirahat = {
+    idKartu : id_kartu,
+    statusKartu : status_kartu_to
+  }
+
+  KartuIstirahat.useUnuseCard(kartu_istirahat, (err, data) => {
+    if (err) {
+      res.status(500).send({
+        message : "Gagal Ambil/Kembalikan Kartu"
+      });
+    } else res.send(data);
   });
 };
 

@@ -14,4 +14,6 @@ module.exports = app => {
 
   app.delete("/api/kartu_istirahat/", kartuIstirahat.deleteAll);
 
+  app.post("/api/kartu_istirahat/set_get_card/", kartuIstirahat.useUnuseCard);
+
 }
