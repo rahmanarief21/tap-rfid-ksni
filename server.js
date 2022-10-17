@@ -15,6 +15,13 @@ app.get("/home", (req, res) => {
   res.json({ message: "NodeJs CRUD Application" });
 });
 
+app.get("/get-all-routes", (req, res) => {  
+  let get = app._router.stack.filter(r => r.route && r.route.methods.get).map(r => r.route.path);
+  let post = app._router.stack.filter(r => r.route && r.route.methods.post).map(r => r.route.path);
+  res.send({ get: get, post: post });
+});
+
+
 require("./app/routes/kartu_istirahat.routes.js")(app);
 require("./app/routes/kartu_terakhir.routes")(app);
 require("./app/routes/home.routes")(app);
