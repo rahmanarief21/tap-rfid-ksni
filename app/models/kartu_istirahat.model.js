@@ -9,6 +9,7 @@ const KartuIstirahat = function(kartuIstirahat){
   this.status_kartu = kartuIstirahat.statusKartu;
 };
 
+// Input Data Baru (noKartu, lokasiKartu, statusKartu)
 KartuIstirahat.create = (NoKartuBaru, result) => {
   sql.query("INSERT INTO tbl_gi_kartu_istirahat SET ?", NoKartuBaru, (err, res) => {
     if (err) {
@@ -23,6 +24,7 @@ KartuIstirahat.create = (NoKartuBaru, result) => {
   });
 };
 
+// Find Kartu By id
 KartuIstirahat.findById = (kartuId, result) => {
   sql.query(`SELECT * FROM tbl_gi_kartu_istirahat WHERE id = ${kartuId} AND deleted_at = '0'`, (err, res) => {
     if (err) {
@@ -43,6 +45,7 @@ KartuIstirahat.findById = (kartuId, result) => {
   });
 };
 
+// Cek Jumlah Kartu by idLokasi (sektor 1,4,6,7)
 KartuIstirahat.existInLocation = (idLokasi, result) => {
   sql.query(
     `SELECT count(id) AS jml_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu = ${idLokasi} AND status_kartu = 1`, 
@@ -59,6 +62,7 @@ KartuIstirahat.existInLocation = (idLokasi, result) => {
     });
 };
 
+// Get Al data from tbl_gi_kartu_istirahat where not deleted
 KartuIstirahat.getAll = result => {
   sql.query("SELECT * FROM tbl_gi_kartu_istirahat WHERE deleted_at = '0'", (err, res) => {
     if (err) {
@@ -72,6 +76,7 @@ KartuIstirahat.getAll = result => {
   });
 };
 
+// Update data kartuIstirahat
 KartuIstirahat.updateStatus = (idKartu, kartuIstirahat, result) => {
   sql.query("UPDATE tbl_gi_kartu_istirahat SET status_kartu = ? WHERE id = ?", [kartuIstirahat.statusKartu, idKartu], (err, res) => {
     if (err) {
@@ -92,6 +97,7 @@ KartuIstirahat.updateStatus = (idKartu, kartuIstirahat, result) => {
   });
 };
 
+// Update data kartuIstirahat
 KartuIstirahat.updateById = (idKartu, kartuIstirahat, result) => {
   sql.query("UPDATE tbl_gi_kartu_istirahat SET no_kartu=?, lokasi_kartu=?, status_kartu = ? WHERE id = ?", [kartuIstirahat.no_kartu, kartuIstirahat.lokasi_kartu, kartuIstirahat.status_kartu, idKartu], (err, res) => {
     if (err) {
@@ -112,6 +118,7 @@ KartuIstirahat.updateById = (idKartu, kartuIstirahat, result) => {
   });
 };
 
+//Delete Kartu by id (Soft)
 KartuIstirahat.softRemove = (idKartu, result) => {
   sql.query("UPDATE tbl_gi_kartu_istirahat SET deleted_at = CURRENT_TIMESTAMP() WHERE id = ? AND deleted_at = '0'", idKartu, (err, res) => {
     if (err) {
@@ -132,6 +139,7 @@ KartuIstirahat.softRemove = (idKartu, result) => {
   });
 };
 
+//Delete Semua Kartu (Soft)
 KartuIstirahat.softRemoveAll = result => {
   sql.query("UPDATE tbl_gi_kartu_istirahat SET deleted_at = CURRENT_TIMESTAMP() WHERE deleted_at = '0'", (err, res) => {
     if (err) {
@@ -145,6 +153,7 @@ KartuIstirahat.softRemoveAll = result => {
   });
 };
 
+//Delete Kartu by id (Hard)
 KartuIstirahat.remove = (idKartu, result) => {
   sql.query(`DELETE FROM tbl_gi_kartu_istirahat WHERE id = ${idKartu}`, (err, res) => {
     if (err) {
@@ -158,6 +167,7 @@ KartuIstirahat.remove = (idKartu, result) => {
   });
 };
 
+// Use & Unused Card
 KartuIstirahat.useUnuseCard = (restCard, result) => {
     let idKartu = restCard.idKartu;
     let changeTo = restCard.statusKartu;
@@ -174,6 +184,7 @@ KartuIstirahat.useUnuseCard = (restCard, result) => {
     });
 };
 
+// Counting Card based on location
 KartuIstirahat.countCard = (locationId = false, result) => {
 
   let sqlLocationId = "";
@@ -197,6 +208,7 @@ KartuIstirahat.countCard = (locationId = false, result) => {
     });
 };
 
+// Get Latest/highest number by location
 KartuIstirahat.getLastCardByLocation = (locationId, result) => {
   sql.query("SELECT id, no_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu=? AND deleted_at = '0' ORDER BY no_kartu DESC LIMIT 1", locationId, (err, res) => {
     if (err) {
@@ -209,4 +221,5 @@ KartuIstirahat.getLastCardByLocation = (locationId, result) => {
     result(null, res);
   });
 };
+
 module.exports = KartuIstirahat;

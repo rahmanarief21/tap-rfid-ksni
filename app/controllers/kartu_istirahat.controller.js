@@ -164,7 +164,7 @@ exports.getLatestCard = (req, res) => {
     });
   }
 
-  locationId = req.params.idLokasi;
+  locationId = req.params.idLokasi; //param idLokas
 
   KartuIstirahat.getLastCardByLocation(locationId, (err, data) => {
     if (err) {
