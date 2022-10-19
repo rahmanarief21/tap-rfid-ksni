@@ -1,11 +1,16 @@
 const mysql = require("mysql");
-const dbConfig = require("../config/config.db.js");
+require("dotenv").config();
+
+const hostname = process.env.DB_HOST;
+const dbname = process.env.DB_DBNAME;
+const username = process.env.DB_USER;
+const password = process.env.DB_PASSWORD;
 
 const connection = mysql.createConnection({
-  host : dbConfig.host,
-  user : dbConfig.user,
-  password : dbConfig.password,
-  database : dbConfig.database,
+  host : hostname,
+  user : username,
+  password : password,
+  database : dbname,
   multipleStatements : true
 });
 
