@@ -1,4 +1,5 @@
 const TransaksiIstirahat = require('../models/transaksi_kartu_istirahat.model.js');
+const KartuIstirahat = require('../models/kartu_istirahat.model.js');
 
 const errMsg = {
 	"not_found" : "Data Tidak Ditemukan"
