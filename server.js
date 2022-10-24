@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require('cors');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -10,6 +11,9 @@ app.use(bodyParser.json());
 // parse requests of content-type: application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(
+  cors()
+);
 // a route for home page
 app.get("/home", (req, res) => {
   res.json({ message: "NodeJs CRUD Application" });
