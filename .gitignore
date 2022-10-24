@@ -2,3 +2,4 @@ node_modules/
 start.bat
 start - dev.bat
 .env
+index.html
