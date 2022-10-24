@@ -78,3 +78,29 @@ exports.deleteTransactionById = (req, res) => {
 	});
 };
 
+exports.getStatusTransaksiByEmpId = (req, res) => {
+	let emp_id = req.params.emp_id;
+
+	TransaksiIstirahat.getStatusTransaksiByEmpId(emp_id, (err, data) => {
+		if (err) {
+			res.status(500).send({
+				err : err
+			})
+		} else res.send(data);
+		
+	})
+};
+
+exports.setRestDuration = (req, res) => {
+	let transaction_id = {
+		id_transaksi : req.body.transaction_id
+	};
+
+	TransaksiIstirahat.calculateRestDuration(transaction_id, (err, data) => {
+		if (err) {
+			res.status(500).send({
+				message : err
+			});
+		} else res.send(data);
+	});
+};

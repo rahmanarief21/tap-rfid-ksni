@@ -8,4 +8,8 @@ module.exports = app => {
 	app.get("/api/transaksi_kartu/:idTransaction", TransaksiIstirahat.getOneTransactionById);
 
 	app.delete("/api/transaksi_kartu/:idTransaction", TransaksiIstirahat.deleteTransactionById);
+
+	app.get("/api/status_istirahat/empid/:emp_id", TransaksiIstirahat.getStatusTransaksiByEmpId);
+
+	app.post("/api/status_istirahat/calculate/", TransaksiIstirahat.setRestDuration);
 };
