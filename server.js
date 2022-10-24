@@ -5,15 +5,24 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+app.use(cors());
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header('Access-Control-Allow-Methods', "POST, GET");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  if ('OPTIONS' == req.method) {
+     res.sendStatus(200);
+   }
+   else {
+     next();
+}});
 // parse requests of content-type: application/json
 app.use(bodyParser.json());
 
 // parse requests of content-type: application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(
-  cors()
-);
 // a route for home page
 app.get("/home", (req, res) => {
   res.json({ message: "NodeJs CRUD Application" });
