@@ -109,13 +109,27 @@ TransaksiIstirahat.insertRestStatus = (data_insert, result) => {
 	let nik = data_insert.emp_id
 	let id_transaction = data_insert.transaction_id;
 	let type_transaction = data_insert.rest_type;
+	let querySql = "";
 
-	let querySql = `INSERT INTO tbl_gi_status_istirahat SET nik = '${nik}', status_istirahat = ${type_transaction}, ${(type_transaction == 1 ? "rest_out" : "rest_in")} = ${id_transaction}`;
+	if (type_transaction == 0) {
+		let transaction_status_id = data_insert.transaction_status_id;
+		querySql = `UPDATE tbl_gi_status_istirahat SET status_istirahat = ${type_transaction}, rest_out = ${id_transaction} WHERE id = ${transaction_status_id}`;
+	} else {
+		querySql = `INSERT INTO tbl_gi_status_istirahat SET nik = '${nik}', status_istirahat = ${type_transaction}, rest_out = ${id_transaction}`;	
+	}
 
 	sql.query(querySql, (err, res) => {
 		if (err) {
 			console.log("error : ", err);
 			result(err, null);
+			return;
+		}
+
+		if (res.affectedRows() < 1)
+		{
+			result({
+				kind : 'not_found'
+			}, null);
 			return;
 		}
 

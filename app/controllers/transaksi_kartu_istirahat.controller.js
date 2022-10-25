@@ -1,5 +1,6 @@
 const TransaksiIstirahat = require('../models/transaksi_kartu_istirahat.model.js');
 const KartuIstirahat = require('../models/kartu_istirahat.model.js');
+const Karyawan = require("../models/karyawan.model.js");
 
 const errMsg = {
 	"not_found" : "Data Tidak Ditemukan"
@@ -103,4 +104,81 @@ exports.setRestDuration = (req, res) => {
 			});
 		} else res.send(data);
 	});
+};
+
+exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
+	if (!req.body.emp_or_rfid) {
+		res.status(400).send({
+			message : "Data Tidak Boleh Kosong",
+			transaction_sts : false
+		})
+		return;
+	}
+
+	let id_to_search_emp = req.body.emp_or_rfid;
+	
+	Karyawan.getOneByNik(id_to_search_emp, (errGetDataEmp, dataEmp) => {
+		if (errGetDataEmp) {
+			 if (errGetDataEmp.kind == "not_found") {
+				res.status(500).send({
+					message : "NIK / RFID Tidak Terdaftar",
+					transaction_sts : false
+				});
+				return;
+			 } else {
+				res.status(500).send({
+					message : "Error Ambil Data Karyawan",
+					transaction_sts : false
+				});
+				return;
+			 }
+		}
+
+		let emp_data = dataEmp[0];
+
+		TransaksiIstirahat.getStatusTransaksiByEmpId(emp_data.nik, (errGetTransaction, dataGetTransaction) => {
+			let status_transaksi = {};
+
+			if (errGetTransaction) {
+				if (errGetTransaction.kind == "not_found") {
+
+					//get card
+
+					res.send({
+						transaction_sts : true,
+						emp_id : emp_data.nik,
+						transaction_next_type : 1
+					})
+				} else {
+					res.status(500).send({
+						message : "Error Ambil Data Transaksi Istirahat",
+						transaction_sts : false
+					});
+				}				
+			} else {
+				let data_transaction = dataGetTransaction[0];
+
+				if (data_transaction.status_istirahat == 0) {
+					// get detail transaction
+					res.status(400).send({
+						message : "Karyawan Sudah Istirahat",
+						transaction_sts : false,
+						transaction_data : data_transaction
+					});
+				} else {
+					res.send({
+						message : "Karyawan Sedang Istirahat, Silahkan Klik Masuk Untuk Masuk Istirahat",
+						transaction_sts : true,
+						transaction_next_type : 0,
+						emp_id : emp_data.nik,
+						transaction_data : data_transaction
+					});
+				}
+			}
+		});
+
+	});
+	
+
+
 };
