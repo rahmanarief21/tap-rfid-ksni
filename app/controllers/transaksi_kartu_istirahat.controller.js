@@ -1,6 +1,8 @@
 const TransaksiIstirahat = require('../models/transaksi_kartu_istirahat.model.js');
 const KartuIstirahat = require('../models/kartu_istirahat.model.js');
 const Karyawan = require("../models/karyawan.model.js");
+const Raspberry = require("../models/raspberry.model.js");
+const { Result } = require('express-validator');
 
 const errMsg = {
 	"not_found" : "Data Tidak Ditemukan"
@@ -116,6 +118,7 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 	}
 
 	let id_to_search_emp = req.body.emp_or_rfid;
+	let rest_location = req.ip;
 	
 	Karyawan.getOneByNik(id_to_search_emp, (errGetDataEmp, dataEmp) => {
 		if (errGetDataEmp) {
@@ -136,14 +139,12 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 
 		let emp_data = dataEmp[0];
 
-		TransaksiIstirahat.getStatusTransaksiByEmpId(emp_data.nik, (errGetTransaction, dataGetTransaction) => {
+		TransaksiIstirahat.getStatusTransaksiByEmpId(emp_data.nik, async (errGetTransaction, dataGetTransaction) => {
 			let status_transaksi = {};
 
 			if (errGetTransaction) {
 				if (errGetTransaction.kind == "not_found") {
-
-					//get card
-
+					// get card
 					res.send({
 						transaction_sts : true,
 						emp_id : emp_data.nik,
@@ -157,13 +158,15 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 				}				
 			} else {
 				let data_transaction = dataGetTransaction[0];
+				let getDetailTransaction = await promiseGetTransactionDetailFromRestStatus(data_transaction.id);
 
 				if (data_transaction.status_istirahat == 0) {
-					// get detail transaction
+					
 					res.status(400).send({
 						message : "Karyawan Sudah Istirahat",
 						transaction_sts : false,
-						transaction_data : data_transaction
+						transaction_data : data_transaction,
+						transaction_detail : getDetailTransaction
 					});
 				} else {
 					res.send({
@@ -171,14 +174,30 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 						transaction_sts : true,
 						transaction_next_type : 0,
 						emp_id : emp_data.nik,
-						transaction_data : data_transaction
+						transaction_data : data_transaction,
+						transaction_detail : getDetailTransaction
 					});
 				}
 			}
 		});
 
 	});
-	
-
 
 };
+
+
+function promiseGetTransactionDetailFromRestStatus(rest_status_transaction_id) {
+	const detailTransactionPromise = new Promise((resolve, reject) => {
+		TransaksiIstirahat.getDetailTransaksiById(
+			rest_status_transaction_id, 
+			(errDetailTransaction, dataDetailTransaction) => {
+				if (errDetailTransaction) {
+					reject(errDetailTransaction);
+				} else {
+					resolve(dataDetailTransaction);
+				}
+		});
+	});
+	
+	return detailTransactionPromise;
+}

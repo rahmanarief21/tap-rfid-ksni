@@ -195,8 +195,30 @@ TransaksiIstirahat.calculateRestDuration = (data_to_calculate, result) => {
 				result(null, {
 					id : resultQuerySetDuration
 				});
+				console.log(sql_set_duration);
 			});
 		});
+	});
+};
+
+TransaksiIstirahat.getDetailTransaksiById = (transaction_id, result) => {
+	let queryGetTransactionDetail = `SELECT sts.id, sts.nik, sts.rest_out, trk_out.created_at AS time_out, sts.rest_in, trk_in.created_at AS time_in, sts.durasi FROM tbl_gi_status_istirahat AS sts INNER JOIN tbl_gi_transaksi AS trk_out ON sts.rest_out = trk_out.id LEFT JOIN tbl_gi_transaksi AS trk_in ON sts.rest_in = trk_in.id WHERE sts.id = ${transaction_id}`;
+
+	sql.query(queryGetTransactionDetail, (errGetDetailTransaction, resultGetDetailTransaction) => {
+		if (errGetDetailTransaction) {
+			result(errGetDetailTransaction, null);
+			console.log(errGetDetailTransaction);
+			return;
+		}
+		
+		if (resultGetDetailTransaction.length > 0) {
+			result(null, resultGetDetailTransaction);
+			return;
+		}
+
+		result({
+			kind : "not_found"
+		}, null);
 	});
 };
 module.exports = TransaksiIstirahat;
