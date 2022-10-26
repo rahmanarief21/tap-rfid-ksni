@@ -21,12 +21,7 @@ exports.getByIpAddress = async (req, res) => {
         resultPromise.errors = errors;
     }
     
-    if (resultPromise.hasOwnProperty("success")) {
-        res.send({status : 1});
-    }else res.send({status : 0});
+    res.send(resultPromise);
     
 };
 
-module.exports = {
-    promiseGetRaspberryByIpAddress
-}
