@@ -202,7 +202,7 @@ TransaksiIstirahat.calculateRestDuration = (data_to_calculate, result) => {
 };
 
 TransaksiIstirahat.getDetailTransaksiById = (transaction_id, result) => {
-	let queryGetTransactionDetail = `SELECT sts.id, sts.nik, sts.rest_out, trk_out.created_at AS time_out, sts.rest_in, trk_in.created_at AS time_in, sts.durasi FROM tbl_gi_status_istirahat AS sts INNER JOIN tbl_gi_transaksi AS trk_out ON sts.rest_out = trk_out.id LEFT JOIN tbl_gi_transaksi AS trk_in ON sts.rest_in = trk_in.id WHERE sts.id = ${transaction_id}`;
+	let queryGetTransactionDetail = `SELECT sts.id, sts.nik, sts.rest_out, trk_out.created_at AS time_out, sts.rest_in, trk_in.created_at AS time_in, sts.durasi, trk_out.id_kartu FROM tbl_gi_status_istirahat AS sts INNER JOIN tbl_gi_transaksi AS trk_out ON sts.rest_out = trk_out.id LEFT JOIN tbl_gi_transaksi AS trk_in ON sts.rest_in = trk_in.id WHERE sts.id = ${transaction_id}`;
 
 	sql.query(queryGetTransactionDetail, (errGetDetailTransaction, resultGetDetailTransaction) => {
 		if (errGetDetailTransaction) {
@@ -221,4 +221,24 @@ TransaksiIstirahat.getDetailTransaksiById = (transaction_id, result) => {
 		}, null);
 	});
 };
+
+TransaksiIstirahat.getLatestRestCardInTransactionByLocation = (location_id, result) => {
+	let sqlLatestCard = `SELECT id, id_kartu, type_transaksi FROM tbl_gi_transaksi WHERE lokasi_istirahat = ${location_id}`;
+
+	sql.query(sqlLatestCard, (errLatestCard, resultLatestCard) => {
+		if (errLatestCard) {
+			result(errLatestCard, null);
+			console.log(errLatestCard);
+		}
+
+		if (resultLatestCard.length > 0) {
+			result(null, resultLatestCard)
+		}
+
+		result({
+			kind : "not_found"
+		})
+	})
+};
+
 module.exports = TransaksiIstirahat;

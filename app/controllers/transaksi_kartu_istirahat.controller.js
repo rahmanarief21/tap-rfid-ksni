@@ -118,7 +118,7 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 	}
 
 	let id_to_search_emp = req.body.emp_or_rfid;
-	let rest_location = req.ip;
+	let rest_location_ip = req.ip;
 	
 	Karyawan.getOneByNik(id_to_search_emp, (errGetDataEmp, dataEmp) => {
 		if (errGetDataEmp) {
@@ -141,14 +141,19 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 
 		TransaksiIstirahat.getStatusTransaksiByEmpId(emp_data.nik, async (errGetTransaction, dataGetTransaction) => {
 			let status_transaksi = {};
+			let ip_location = rest_location_ip.substr(7);
 
 			if (errGetTransaction) {
 				if (errGetTransaction.kind == "not_found") {
 					// get card
+
+					let card_to_use = await getRestCardForEmp(ip_location);
+
 					res.send({
 						transaction_sts : true,
 						emp_id : emp_data.nik,
-						transaction_next_type : 1
+						transaction_next_type : 1,
+						card_to_use : card_to_use
 					})
 				} else {
 					res.status(500).send({
@@ -158,7 +163,17 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 				}				
 			} else {
 				let data_transaction = dataGetTransaction[0];
-				let getDetailTransaction = await promiseGetTransactionDetailFromRestStatus(data_transaction.id);
+				let getDetailTransaction;
+
+				getDetailTransaction = await promiseGetTransactionDetailFromRestStatus(data_transaction.id);
+
+				/*
+				try {
+					getDetailTransaction = await promiseGetTransactionDetailFromRestStatus(data_transaction.id);	
+				} catch (error) {
+					getDetailTransaction = error;
+				}*/
+				
 
 				if (data_transaction.status_istirahat == 0) {
 					
@@ -186,7 +201,7 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 };
 
 
-function promiseGetTransactionDetailFromRestStatus(rest_status_transaction_id) {
+function promiseGetTransactionDetailFromRestStatus (rest_status_transaction_id) {
 	const detailTransactionPromise = new Promise((resolve, reject) => {
 		TransaksiIstirahat.getDetailTransaksiById(
 			rest_status_transaction_id, 
@@ -200,4 +215,118 @@ function promiseGetTransactionDetailFromRestStatus(rest_status_transaction_id) {
 	});
 	
 	return detailTransactionPromise;
+}
+
+function promiseGetIdLocationByIpRaspberry (ip_address_client) {
+	const detailDataLocationBasedOnIpAddress = new Promise((resolve, reject) => {
+		Raspberry.getOneByIpAddress(ip_address_client, (errDetailLocation, dataDetailLocation) => {
+			if (errDetailLocation) {
+				reject(errDetailLocation);
+			} else {
+				resolve(dataDetailLocation);
+			}
+		});
+	});
+	return detailDataLocationBasedOnIpAddress;
+}
+
+function promiseGetAllCardAvailableByLocation (data_location) {
+	const listAllAvailableCard = new Promise((resolve, reject) => {
+		KartuIstirahat.getAllAvailableRestCardByLocationId(data_location, (errListCard, resListCard) => {
+			if (errListCard) {
+				reject(errListCard);
+			} else {
+				resolve(resListCard);
+			}
+		});
+	});
+
+	return listAllAvailableCard;
+}
+
+function promiseGetLatestTransactionByLocation (location_id) {
+	const latestCard = new Promise((resolve, reject) => {
+		TransaksiIstirahat.getLatestRestCardInTransactionByLocation(
+			location_id, 
+			(errLatestCard, resLatestCard) => {
+				if (errLatestCard) {
+					reject(errLatestCard);
+				} else {
+					resolve(resLatestCard);
+				}
+			});
+	});
+
+	return latestCard;
+}
+
+function promiseGetHighestCardByLocation (location_id) {
+	const highestCard = new Promise((resolve, reject) => {
+		KartuIstirahat.getLastCardByLocation(location_id, (errLastCard, resLastCard) => {
+			if (errLastCard) {
+				reject(errLastCard);
+			} else {
+				resolve(resLastCard);
+			}
+		});
+	});
+	return highestCard;
+}
+
+async function getRestCardForEmp (ip_location) {
+
+	const resultCard = {};
+
+	let listCard;
+	let errorCollection = {};
+	let location_detail = await promiseGetIdLocationByIpRaspberry(ip_location)
+		.catch((errorCheckLocation) => {
+			resultCard.errors = errorCheckLocation;
+			resultCard.errors.step = "location";
+		});
+	
+	let highestCardInLocation = await promiseGetHighestCardByLocation(location_detail[0].id_sektor)
+		.catch((errorHighestCard) => {
+			resultCard.errors = errorHighestCard;
+			resultCard.errors.step = "last_card";
+		});
+	
+	//resultCard.success = highestCardInLocation;
+	
+	let lastTransaction = "not_found";
+	try{
+		lastTransaction = await promiseGetLatestTransactionByLocation(location_detail[0].id_sektor);
+	}catch(errLastTransaction){
+		if (errLastTransaction.kind == "not_found") {
+			lastTransaction = "not_found";
+		}
+	}
+	
+	if (!resultCard.hasOwnProperty("errors")) {
+		if (lastTransaction == "not_found") {
+			listCard = await promiseGetAllCardAvailableByLocation({
+				location_id : location_detail[0].id_sektor,
+				id_used_card : 0
+			});
+	
+			resultCard.card_avail_to_use = listCard[0];
+		} else {
+			if (lastTransaction[0].id_kartu == highestCardInLocation[0].id) {
+				listCard = await promiseGetAllCardAvailableByLocation({
+					location_id : location_detail[0].id_sektor,
+					id_used_card : 0
+				});
+		
+				resultCard.card_avail_to_use = listCard[0];
+			} else {
+				listCard = await promiseGetAllCardAvailableByLocation({
+					location_id : location_detail[0].id_sektor,
+					id_used_card : lastTransaction[0].id_kartu
+				});
+		
+				resultCard.card_avail_to_use = listCard[0];
+			}
+		}
+	}	
+	return resultCard;
 }

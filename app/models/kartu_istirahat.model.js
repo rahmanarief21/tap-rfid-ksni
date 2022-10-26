@@ -210,15 +210,42 @@ KartuIstirahat.countCard = (locationId = false, result) => {
 
 // Get Latest/highest number by location
 KartuIstirahat.getLastCardByLocation = (locationId, result) => {
-  sql.query("SELECT id, no_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu=? AND deleted_at = '0' ORDER BY no_kartu DESC LIMIT 1", locationId, (err, res) => {
+  sql.query("SELECT id, no_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu=? AND deleted_at = '0' AND avail = 1 ORDER BY no_kartu DESC LIMIT 1", locationId, (err, res) => {
     if (err) {
       console.log("error :", err);
       result(err, null);
       return;
     }
+    
+    if (res.length > 0) {
+      result(null, res);
+    }
 
-    console.log(res);
-    result(null, res);
+    //console.log(res);
+    result({
+      kind : "not_found"
+    }, null);
+  });
+};
+
+KartuIstirahat.getAllAvailableRestCardByLocationId = (data_to_search, result) => {
+  let sqlGetDataRestCard = `SELECT * FROM tbl_gi_kartu_istirahat WHERE id > ${data_to_search.id_used_card} AND lokasi_kartu = ${data_to_search.location_id}  AND status_kartu = 1 AND avail = 1 AND deleted_at = '0'`;
+
+  sql.query(sqlGetDataRestCard, (errGetDataRestCard, resGetDataRestCard) => {
+    if (errGetDataRestCard) {
+      result(errGetDataRestCard, null);
+      //console.log(errGetDataRestCard);
+    }
+
+    //console.log(resGetDataRestCard);
+    if (resGetDataRestCard.length > 0) {
+      result(null, resGetDataRestCard);
+    }
+
+    result({
+      kind : "not_found"
+    }, null);
+    
   });
 };
 
