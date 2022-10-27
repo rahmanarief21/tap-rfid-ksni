@@ -232,7 +232,7 @@ exports.setEmpRestTime = async (req, res) => {
 
 				TransaksiIstirahat.insertRestStatus(
 					transactionData, 
-					(errInsertStatusTransaction, dataInsertStatusTransaction) => {
+					async (errInsertStatusTransaction, dataInsertStatusTransaction) => {
 						if (errInsertStatusTransaction) {
 							res.status(500).send({
 								message : "Error Insert Status Istirahat",
@@ -241,11 +241,29 @@ exports.setEmpRestTime = async (req, res) => {
 
 							//do del transaksi
 						} else {
+							let card_usage = await promiseChangeRestCardStatus(
+								transactionData.id_kartu, 
+								transactionData.type_transaksi)
+								.catch((errorChangeStatus) => { return false; })
+								.then((resultData) => { return true; });
+
+							let calculate_duration = (
+								transactionData.type_transaksi == 0 ? 
+								await promiseCalculateDuration(dataInsertStatusTransaction.id_transaksi)
+									.catch((errorDuration) => { return false; })
+									.then((dataDuration) => { return true; }) : 
+								"not_yet");
+
 							res.send({
 								status : "success",
-								data : dataInsertStatusTransaction
+								data : dataInsertStatusTransaction,
+								status_tambahan : {
+									card : card_usage,
+									calculate : calculate_duration
+								}
 							});
 
+							
 
 						}
 					});
@@ -389,4 +407,38 @@ async function getRestCardForEmp (ip_location) {
 		}
 	}	
 	return resultCard;
+}
+
+function promiseChangeRestCardStatus (card_id, card_status) {
+	const resultChangeStatus = new Promise((resolve, reject) => {
+		let cardData = {};
+		cardData.idKartu = card_id;
+		cardData.statusKartu = (card_status == 1 ? 0 : 1);
+		console.log(cardData);
+		KartuIstirahat.useUnuseCard(cardData, (errChangeStatus, dataChangeStatus) => {
+			if(errChangeStatus) {
+				reject(errChangeStatus);
+			} else {
+				resolve(dataChangeStatus);
+			}
+		});
+	});
+
+	return resultChangeStatus;
+}
+
+function promiseCalculateDuration (id_transaction) {
+	const resultCalculateDuration = new Promise((resolve, reject) => {
+		let dataToCalculate = {
+			id_transaksi : id_transaction
+		};
+		TransaksiIstirahat.calculateRestDuration(dataToCalculate, (errCalculation, resultCalculation) => {
+			if (errCalculation) {
+				reject(errCalculation);
+			} else {
+				resolve(resultCalculation);
+			}
+		})
+	})
+	return resultCalculateDuration;
 }

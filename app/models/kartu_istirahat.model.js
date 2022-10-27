@@ -230,7 +230,7 @@ KartuIstirahat.getLastCardByLocation = (locationId, result) => {
 
 KartuIstirahat.getAllAvailableRestCardByLocationId = (data_to_search, result) => {
   let sqlGetDataRestCard = `SELECT * FROM tbl_gi_kartu_istirahat WHERE id > ${data_to_search.id_used_card} AND lokasi_kartu = ${data_to_search.location_id}  AND status_kartu = 1 AND avail = 1 AND deleted_at = '0'`;
-
+  console.log(sqlGetDataRestCard);
   sql.query(sqlGetDataRestCard, (errGetDataRestCard, resGetDataRestCard) => {
     if (errGetDataRestCard) {
       result(errGetDataRestCard, null);

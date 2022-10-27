@@ -138,7 +138,7 @@ TransaksiIstirahat.insertRestStatus = (data_insert, result) => {
 		}
 
 		let result_set = {};
-		result_set.id_transaksi = res.insertId;
+		result_set.id_transaksi = data_insert.transaction_status_id;
 		result_set.nik = nik;
 		result_set.type_transaksi = type_transaction;
 
@@ -228,7 +228,7 @@ TransaksiIstirahat.getDetailTransaksiById = (transaction_id, result) => {
 };
 
 TransaksiIstirahat.getLatestRestCardInTransactionByLocation = (location_id, result) => {
-	let sqlLatestCard = `SELECT id, id_kartu, type_transaksi FROM tbl_gi_transaksi WHERE lokasi_istirahat = ${location_id}`;
+	let sqlLatestCard = `SELECT id, id_kartu, type_transaksi FROM tbl_gi_transaksi WHERE lokasi_istirahat = ${location_id} ORDER BY id_kartu DESC`;
 
 	sql.query(sqlLatestCard, (errLatestCard, resultLatestCard) => {
 		if (errLatestCard) {
