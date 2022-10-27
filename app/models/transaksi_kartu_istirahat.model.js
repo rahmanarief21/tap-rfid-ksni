@@ -9,7 +9,10 @@ const TransaksiIstirahat = (transaksiIstirahat) => {
 };
 
 TransaksiIstirahat.create = (transaksiBaru, result) => {
-	sql.query("INSERT INTO tbl_gi_transaksi SET ?", transaksiBaru, (err, res) => {
+
+	let sql_set_transaksi = `INSERT INTO tbl_gi_transaksi SET nik='${transaksiBaru.nik}', type_transaksi= ${transaksiBaru.type_transaksi}, id_kartu= ${transaksiBaru.id_kartu} , lokasi_istirahat= ${transaksiBaru.lokasi_istirahat[0].id_sektor} `;
+
+	sql.query(sql_set_transaksi, (err, res) => {
 		if (err) {
 			console.log("error : ", err);
 			result(err, null);
@@ -106,14 +109,15 @@ TransaksiIstirahat.getStatusTransaksiByEmpId = (emp_id, result) => {
 };
 
 TransaksiIstirahat.insertRestStatus = (data_insert, result) => {
-	let nik = data_insert.emp_id
-	let id_transaction = data_insert.transaction_id;
-	let type_transaction = data_insert.rest_type;
+	let nik = data_insert.nik
+	let id_transaction = data_insert.rest_transaction_id;
+	let type_transaction = data_insert.type_transaksi;
 	let querySql = "";
 
 	if (type_transaction == 0) {
 		let transaction_status_id = data_insert.transaction_status_id;
-		querySql = `UPDATE tbl_gi_status_istirahat SET status_istirahat = ${type_transaction}, rest_out = ${id_transaction} WHERE id = ${transaction_status_id}`;
+		querySql = `UPDATE tbl_gi_status_istirahat SET status_istirahat = ${type_transaction}, rest_in = ${id_transaction} WHERE id = ${transaction_status_id}`;
+		console.log(querySql);
 	} else {
 		querySql = `INSERT INTO tbl_gi_status_istirahat SET nik = '${nik}', status_istirahat = ${type_transaction}, rest_out = ${id_transaction}`;	
 	}
@@ -125,7 +129,7 @@ TransaksiIstirahat.insertRestStatus = (data_insert, result) => {
 			return;
 		}
 
-		if (res.affectedRows() < 1)
+		if (type_transaction == 0 && res.affectedRows < 1)
 		{
 			result({
 				kind : 'not_found'
@@ -138,7 +142,7 @@ TransaksiIstirahat.insertRestStatus = (data_insert, result) => {
 		result_set.nik = nik;
 		result_set.type_transaksi = type_transaction;
 
-		result(result_set, null);
+	result(null, result_set);
 		console.log(result_set);
 	});
 };
@@ -217,7 +221,8 @@ TransaksiIstirahat.getDetailTransaksiById = (transaction_id, result) => {
 		}
 
 		result({
-			kind : "not_found"
+			kind : "not_found",
+			sql : queryGetTransactionDetail
 		}, null);
 	});
 };

@@ -109,7 +109,7 @@ exports.setRestDuration = (req, res) => {
 };
 
 exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
-	if (!req.body.emp_or_rfid) {
+	if (!req.params.emp_or_rfid) {
 		res.status(400).send({
 			message : "Data Tidak Boleh Kosong",
 			transaction_sts : false
@@ -117,7 +117,7 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 		return;
 	}
 
-	let id_to_search_emp = req.body.emp_or_rfid;
+	let id_to_search_emp = req.params.emp_or_rfid;
 	let rest_location_ip = req.ip;
 	
 	Karyawan.getOneByNik(id_to_search_emp, (errGetDataEmp, dataEmp) => {
@@ -165,7 +165,10 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 				let data_transaction = dataGetTransaction[0];
 				let getDetailTransaction;
 
-				getDetailTransaction = await promiseGetTransactionDetailFromRestStatus(data_transaction.id);
+				getDetailTransaction = await promiseGetTransactionDetailFromRestStatus(data_transaction.id)
+					.catch((errorDetailTransaction) => {
+						return errorDetailTransaction;
+					});
 
 				/*
 				try {
@@ -198,6 +201,63 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 
 	});
 
+};
+
+exports.setEmpRestTime = async (req, res) => {
+
+	const transactionData = {};
+
+	transactionData.nik = req.body.nik;
+	transactionData.type_transaksi = req.body.type_trk;
+	transactionData.transaction_status_id= req.body.id_trk;
+	transactionData.id_kartu = req.body.id_kartu;
+	transactionData.lokasi_istirahat = await promiseGetIdLocationByIpRaspberry(req.ip.substr(7)).catch((dataError) => {
+		return "error";
+	});
+
+	if (
+		transactionData.nik !== "" && 
+		transactionData.type_transaksi !== "" && 
+		transactionData.id_kartu !== "" && 
+		transactionData.lokasi_istirahat !== "error") {
+		
+		TransaksiIstirahat.create(transactionData, (errInsertTransaction, dataInsertTransaction) => {
+			if (errInsertTransaction) {
+				res.status(500).send({
+					message : "Error Input Transaksi",
+					err : errInsertTransaction
+				});
+			} else {
+				transactionData.rest_transaction_id = dataInsertTransaction.id;
+
+				TransaksiIstirahat.insertRestStatus(
+					transactionData, 
+					(errInsertStatusTransaction, dataInsertStatusTransaction) => {
+						if (errInsertStatusTransaction) {
+							res.status(500).send({
+								message : "Error Insert Status Istirahat",
+								err : errInsertStatusTransaction
+							});
+
+							//do del transaksi
+						} else {
+							res.send({
+								status : "success",
+								data : dataInsertStatusTransaction
+							});
+
+
+						}
+					});
+
+			}
+		});
+
+	}else {
+		res.status(400).send({
+			message : "Data Tidak Boleh Kosong"
+		})
+	}
 };
 
 

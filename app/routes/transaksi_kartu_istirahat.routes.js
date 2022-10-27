@@ -13,7 +13,9 @@ module.exports = app => {
 
 	app.post("/api/status_istirahat/calculate/", TransaksiIstirahat.setRestDuration);
 
-	app.post("/api/transaksi_istirahat/", TransaksiIstirahat.getStatusTransactionByRfidOrEmpId);
+	app.get("/api/transaksi_istirahat/:emp_or_rfid", TransaksiIstirahat.getStatusTransactionByRfidOrEmpId);
+
+	app.post("/api/transaksi_istirahat/", TransaksiIstirahat.setEmpRestTime);
 
 	//app.get("/api/transaksi_istirahat/:emp_id")
 };
