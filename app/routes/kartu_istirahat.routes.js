@@ -20,5 +20,7 @@ module.exports = app => {
 
   app.get("/api/kartu_istirahat_count/:idLokasi", kartuIstirahat.countCard);
 
-  app.get("/api/test_routes/:idLokasi", kartuIstirahat.getLatestCard); //for test new method
+  app.get("/api/test_routes/:idLokasi", kartuIstirahat.getLatestCard);
+  
+  app.get("/api/total_kartu_istirahat", kartuIstirahat.getTotalCardEveryLocation);//for test new method
 }

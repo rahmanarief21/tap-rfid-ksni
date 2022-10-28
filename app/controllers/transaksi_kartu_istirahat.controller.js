@@ -255,21 +255,24 @@ exports.setEmpRestTime = async (req, res) => {
 									.catch((errorDuration) => { return false; })
 									.then((dataDuration) => { return true; }) : 
 								"not_yet");
+							
+							let complete_transaction = (transactionData.type_transaksi == 0 ? 
+							await promiseGetTransactionDetailFromRestStatus(dataInsertStatusTransaction.id_transaksi)
+								.catch((errorDetailTransaction) => { return false; })
+								.then((dataDetailTransaction) => { return dataDetailTransaction; }) : 
+							"not_yet");
 
 							res.send({
 								status : "success",
 								data : dataInsertStatusTransaction,
 								status_tambahan : {
 									card : card_usage,
-									calculate : calculate_duration
+									calculate : calculate_duration,
+									detail : complete_transaction
 								}
 							});
-
-							
-
 						}
 					});
-
 			}
 		});
 

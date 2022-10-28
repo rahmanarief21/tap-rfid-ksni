@@ -178,3 +178,15 @@ exports.getLatestCard = (req, res) => {
     } else res.send(data);
   });
 };
+
+exports.getTotalCardEveryLocation = (req, res) => {
+  KartuIstirahat.getTotalRestCardInLocation((errTotalRestCard, dataTotalkRestCard) => {
+    if (errTotalRestCard) {
+      res.status(500).send({
+        message : errTotalRestCard
+      })
+    } else {
+      res.send(dataTotalkRestCard);
+    } 
+  })
+};

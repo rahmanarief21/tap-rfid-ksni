@@ -250,4 +250,17 @@ KartuIstirahat.getAllAvailableRestCardByLocationId = (data_to_search, result) =>
   });
 };
 
+KartuIstirahat.getTotalRestCardInLocation = (result) => {
+  let queryTotalCard = "SELECT krt.lokasi_kartu, sktr.nama_sektor, SUM(IF (krt.status_kartu = 1, 1, 0)) AS kartu_aktif, SUM(IF (krt.status_kartu = 0, 1, 0)) AS kartu_non_aktif, COUNT(krt.id) AS jumlah_kartu FROM tbl_gi_kartu_istirahat AS krt INNER JOIN tbl_sektor AS sktr ON krt.lokasi_kartu = sktr.id WHERE krt.avail = 1 GROUP BY krt.lokasi_kartu";
+
+  sql.query(queryTotalCard, (errTotalCard, resTotalCard) => {
+    if (errTotalCard) {
+      result(errTotalCard, null);
+      return;
+    }
+
+    result(null, resTotalCard);
+  });
+}
+
 module.exports = KartuIstirahat;
