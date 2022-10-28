@@ -153,7 +153,8 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 						transaction_sts : true,
 						emp_id : emp_data.nik,
 						transaction_next_type : 1,
-						card_to_use : card_to_use
+						card_to_use : card_to_use,
+						data_karyawan : dataEmp[0]
 					})
 				} else {
 					res.status(500).send({
@@ -193,7 +194,8 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 						transaction_next_type : 0,
 						emp_id : emp_data.nik,
 						transaction_data : data_transaction,
-						transaction_detail : getDetailTransaction
+						transaction_detail : getDetailTransaction,
+						data_karyawan : dataEmp[0]
 					});
 				}
 			}
@@ -362,7 +364,7 @@ async function getRestCardForEmp (ip_location) {
 			resultCard.errors = errorCheckLocation;
 			resultCard.errors.step = "location";
 		});
-	
+	console.log(resultCard);
 	let highestCardInLocation = await promiseGetHighestCardByLocation(location_detail[0].id_sektor)
 		.catch((errorHighestCard) => {
 			resultCard.errors = errorHighestCard;
