@@ -210,7 +210,8 @@ KartuIstirahat.countCard = (locationId = false, result) => {
 
 // Get Latest/highest number by location
 KartuIstirahat.getLastCardByLocation = (locationId, result) => {
-  sql.query("SELECT id, no_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu=? AND deleted_at = '0' AND avail = 1 ORDER BY no_kartu DESC LIMIT 1", locationId, (err, res) => {
+  let sqlQuery = `SELECT id, no_kartu FROM tbl_gi_kartu_istirahat WHERE lokasi_kartu=${locationId} AND deleted_at = '0' AND avail = 1 ORDER BY no_kartu DESC LIMIT 1`;
+  sql.query(sqlQuery, (err, res) => {
     if (err) {
       console.log("error :", err);
       result(err, null);
