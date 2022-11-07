@@ -180,13 +180,13 @@ exports.getLatestCard = (req, res) => {
 };
 
 exports.getTotalCardEveryLocation = (req, res) => {
-  KartuIstirahat.getTotalRestCardInLocation((errTotalRestCard, dataTotalkRestCard) => {
+  KartuIstirahat.getTotalRestCardInLocation((errTotalRestCard, dataTotalRestCard) => {
     if (errTotalRestCard) {
       res.status(500).send({
         message : errTotalRestCard
       })
     } else {
-      res.send(dataTotalkRestCard);
+      res.send(dataTotalRestCard);
     } 
   })
 };
