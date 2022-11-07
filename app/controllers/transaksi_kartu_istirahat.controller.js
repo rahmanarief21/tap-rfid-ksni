@@ -124,7 +124,7 @@ exports.getStatusTransactionByRfidOrEmpId = (req, res) => {
 		if (errGetDataEmp) {
 			 if (errGetDataEmp.kind == "not_found") {
 				res.status(500).send({
-					message : "NIK / RFID Tidak Terdaftar",
+					message : "NIK / RFID Tidak Terdaftar, Silahkan Daftarkan RFID anda ke HRD",
 					transaction_sts : false
 				});
 				return;
