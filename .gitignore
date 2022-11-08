@@ -3,3 +3,4 @@ start.bat
 start - dev.bat
 .env
 index.html
+nodemon server.js.bat
