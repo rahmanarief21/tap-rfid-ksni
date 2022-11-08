@@ -234,6 +234,7 @@ TransaksiIstirahat.getLatestRestCardInTransactionByLocation = (location_id, resu
 		if (errLatestCard) {
 			result(errLatestCard, null);
 			console.log(errLatestCard);
+			return;
 		}
 
 		if (resultLatestCard.length > 0) {
@@ -245,5 +246,26 @@ TransaksiIstirahat.getLatestRestCardInTransactionByLocation = (location_id, resu
 		})
 	})
 };
+
+TransaksiIstirahat.getActiveTrancasationSummaryByDept = (result) => {
+	let sqlActiveTransactionByDept = "SELECT dept.kode, dept.nama_dept, COUNT(sts.nik) FROM tbl_gi_status_istirahat AS sts LEFT JOIN tbl_karyawan AS kry ON sts.nik = kry.nik LEFT JOIN tbl_dept AS dept ON kry.dept = dept.kode WHERE sts.status_istirahat = 1 AND DATE(sts.created_at) = CURRENT_DATE() GROUP BY dept.kode";
+
+	sql.query(sqlActiveTransactionByDept, (errActiveTransactio, resultActiveTransaction) => {
+		if (errActiveTransactio) {
+			result(errActiveTransactio, null);
+			return;
+		}
+		
+		if (resultActiveTransaction.length > 0) {
+			result(null, resultActiveTransaction);
+			return;
+		}
+
+		result({
+			kind : "not_found"
+		}, null)
+
+	});
+}
 
 module.exports = TransaksiIstirahat;
