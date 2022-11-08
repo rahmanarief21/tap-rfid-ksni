@@ -228,7 +228,7 @@ TransaksiIstirahat.getDetailTransaksiById = (transaction_id, result) => {
 };
 
 TransaksiIstirahat.getLatestRestCardInTransactionByLocation = (location_id, result) => {
-	let sqlLatestCard = `SELECT id, id_kartu, type_transaksi FROM tbl_gi_transaksi WHERE lokasi_istirahat = ${location_id} ORDER BY id_kartu DESC`;
+	let sqlLatestCard = `SELECT id, id_kartu, type_transaksi FROM tbl_gi_transaksi WHERE lokasi_istirahat = ${location_id} AND created_at >= DATE_SUB(now(), interval 8 hour) ORDER BY id_kartu DESC`;
 
 	sql.query(sqlLatestCard, (errLatestCard, resultLatestCard) => {
 		if (errLatestCard) {
