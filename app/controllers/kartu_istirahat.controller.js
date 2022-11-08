@@ -190,3 +190,13 @@ exports.getTotalCardEveryLocation = (req, res) => {
     } 
   })
 };
+
+exports.getDetailRestCardByLocation = (req, res) => {
+  KartuIstirahat.getDetailRestCardByLocation(req.params.location_id, (errDetailRestCard, dataDetailRestCard) => {
+    if (errDetailRestCard) {
+      res.status(500).send({
+        message : errDetailRestCard
+      });
+    } else res.send(dataDetailRestCard);
+  })
+}

@@ -263,4 +263,24 @@ KartuIstirahat.getTotalRestCardInLocation = (result) => {
   });
 }
 
+KartuIstirahat.getDetailRestCardByLocation = (locationId, result) => {
+  let queryDetailCard = `SELECT id, no_kartu, status_kartu, avail FROM tbl_gi_kartu_istirahat AS krt WHERE krt.lokasi_kartu = ${locationId} AND krt.deleted_at = '0' ORDER BY no_kartu`;
+
+  sql.query(queryDetailCard, (errDetailRestCard, resultDetailRestCard) => {
+    if (errDetailRestCard) {
+      result(errDetailRestCard, null);
+      return;
+    }
+
+    if (resultDetailRestCard.length > 0) {
+      result(null, resultDetailRestCard);
+      return;
+    }
+
+    result({
+      kind : "not_found"
+    }, null);
+  })
+}
+
 module.exports = KartuIstirahat;
